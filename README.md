@@ -1,2 +1,19 @@
-# naturaDock
-End-to-end computational platform automating bioactive natural compound discovery through high-throughput virtual screening. Integrates molecular docking, ADMET prediction, and ML-based prioritization with interactive visualizations. Open-source pipeline supporting 10K+ compounds, targeting immune proteins like IL-23R.
+#naturaDock
+
+A reproducible pipeline for screening natural compounds against protein targets using AutoDock Vina, RDKit, and Biopython.
+
+Designed as both a learning project and a research tool for computational drug discovery.
+
+##Features
+
+\- Fetch compounds from PubChem or local libraries
+
+\- Filter & clean compounds (MW, duplicates, conformers)
+
+\- Prepare protein structures (download, clean, define binding site)
+
+\- Dock compounds using AutoDock Vina
+
+\- Rank and analyze docking scores
+
+\- Visualize results (plots + binding poses)

@@ -173,3 +173,11 @@ site/
 # Protein structure collections
 # data/pdb/*.pdb
 # data/alphafold/*.pdb
+
+# BMad Method & AI Tooling
+.bmad-core/
+.claude/
+.cursor/
+.gemini/
+.github/
+.qwen/

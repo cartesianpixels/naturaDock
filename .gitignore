@@ -53,8 +53,10 @@ ipython_config.py
 
 # Large molecular data files
 *.sdf
+!tests/data/*.sdf
 *.mol2
 *.pdb
+!tests/data/*.pdb
 *.pdbqt
 *.xyz
 *.log
@@ -181,3 +183,4 @@ site/
 .gemini/
 .github/
 .qwen/
+environment.local.yml

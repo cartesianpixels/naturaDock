@@ -3,6 +3,7 @@ import toml
 from pathlib import Path
 
 from naturaDock.preprocessing.protein import (
+    load_protein,
     validate_protein,
     prepare_protein,
     define_binding_site,
@@ -14,6 +15,9 @@ from naturaDock.preprocessing.compounds import (
     prepare_compounds,
 )
 from naturaDock.docking.vina_dock import run_vina_docking
+from naturaDock.analysis.results import aggregate_results
+from naturaDock.analysis.export import rank_and_export_results
+from naturaDock.analysis.statistics import generate_statistics
 
 
 def main():
@@ -40,36 +44,21 @@ def main():
         "-o", "--output", type=Path, help="Path to the output directory."
     )
     parser.add_argument(
-        "--center_x",
-        type=float,
-        help="X coordinate of the binding site center.",
-    )
-    parser.add_argument(
-        "--center_y",
-        type=float,
-        help="Y coordinate of the binding site center.",
-    )
-    parser.add_argument(
-        "--center_z",
-        type=float,
-        help="Z coordinate of the binding site center.",
-    )
-    parser.add_argument(
         "--size_x",
         type=float,
-        default=20.0,
+        default=60.0,
         help="Size of the binding site in the X dimension.",
     )
     parser.add_argument(
         "--size_y",
         type=float,
-        default=20.0,
+        default=60.0,
         help="Size of the binding site in the Y dimension.",
     )
     parser.add_argument(
         "--size_z",
         type=float,
-        default=20.0,
+        default=60.0,
         help="Size of the binding site in the Z dimension.",
     )
     parser.add_argument(
@@ -96,6 +85,17 @@ def main():
         default=5.0,
         help="Maximum logP for compound filtering.",
     )
+    parser.add_argument(
+        "--export_format",
+        type=str,
+        default="csv",
+        help="Format for exporting ranked results (csv or xlsx).",
+    )
+    parser.add_argument(
+        "--skip_analysis",
+        action="store_true",
+        help="Skip the analysis step.",
+    )
 
     args = parser.parse_args()
 
@@ -106,7 +106,7 @@ def main():
         args = parser.parse_args()
 
     # Validate required arguments
-    required_args = ["protein", "ligands", "output", "center_x", "center_y", "center_z"]
+    required_args = ["protein", "ligands", "output"]
     for arg in required_args:
         if not getattr(args, arg):
             raise ValueError(f"Missing required argument: --{arg}")
@@ -114,8 +114,9 @@ def main():
     # Create output directory if it doesn't exist
     args.output.mkdir(exist_ok=True)
 
-    # 1. Validate protein
-    print("--- Validating Protein ---")
+    # 1. Load and validate protein
+    print("--- Loading and Validating Protein ---")
+    protein_structure = load_protein(args.protein)
     validate_protein(args.protein)
 
     # 2. Prepare protein
@@ -148,9 +149,7 @@ def main():
 
     # 6. Define binding site
     binding_site = define_binding_site(
-        center_x=args.center_x,
-        center_y=args.center_y,
-        center_z=args.center_z,
+        protein_structure,
         size_x=args.size_x,
         size_y=args.size_y,
         size_z=args.size_z,
@@ -169,6 +168,16 @@ def main():
             binding_site=binding_site,
             output_pdbqt=output_pdbqt,
         )
+
+    # 8. Run analysis
+    if not args.skip_analysis:
+        print("--- Running Analysis ---")
+        results_df = aggregate_results(docking_results_dir)
+        if not results_df.empty:
+            rank_and_export_results(results_df, args.output, args.export_format)
+            generate_statistics(results_df, args.output)
+        else:
+            print("No results to analyze.")
 
     print("--- naturaDock pipeline finished ---")
 

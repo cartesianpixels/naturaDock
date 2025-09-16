@@ -1,15 +1,17 @@
 from pathlib import Path
 import subprocess
+import pandas as pd
+import os
 
 # Define test data paths
 TEST_DATA_DIR = Path(__file__).parent / "data"
 PROTEIN_PDB = TEST_DATA_DIR / "test_protein.pdb"
-COMPOUND_SDF = TEST_DATA_DIR / "test_compounds.sdf"
+COMPOUND_SDF = TEST_DATA_DIR / "test_compounds_small.sdf"
 OUTPUT_DIR = Path(__file__).parent / "cli_output"
 
 
-def test_cli():
-    """Test the full CLI workflow."""
+def test_cli_workflow():
+    """Test the full CLI workflow from preprocessing to analysis."""
     # Ensure output directory is clean
     if OUTPUT_DIR.exists():
         subprocess.run(["rmdir", "/s", "/q", str(OUTPUT_DIR)], shell=True)
@@ -24,17 +26,17 @@ def test_cli():
         str(COMPOUND_SDF),
         "-o",
         str(OUTPUT_DIR),
-        "--center_x",
-        "15.0",
-        "--center_y",
-        "15.0",
-        "--center_z",
-        "15.0",
     ]
 
-    result = subprocess.run(command, capture_output=True, text=True)
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(__file__).parent.parent / "src")
 
-    assert result.returncode == 0
+    result = subprocess.run(command, capture_output=True, text=True, env=env)
+
+    print("STDOUT:", result.stdout)
+    print("STDERR:", result.stderr)
+
+    assert result.returncode == 0, f"CLI test failed with stderr:\n{result.stderr}"
     assert "naturaDock pipeline finished" in result.stdout
 
     # Check for output files
@@ -49,7 +51,26 @@ def test_cli():
 
     # Check if at least one compound was prepared and docked
     prepared_files = list(prepared_compounds_dir.glob("*.pdbqt"))
-    assert len(prepared_files) > 0
+    assert len(prepared_files) == 2
 
     docked_files = list(docking_results_dir.glob("*.pdbqt"))
-    assert len(docked_files) > 0
+    assert len(docked_files) == 2
+
+    # Check analysis output
+    ranked_csv = OUTPUT_DIR / "ranked_results.csv"
+    assert ranked_csv.exists()
+
+    df = pd.read_csv(ranked_csv)
+    assert len(df) == 2
+    assert "compound" in df.columns
+    assert "affinity" in df.columns
+    assert all(df["affinity"] <= 0)
+
+    summary_path = OUTPUT_DIR / "statistical_summary.txt"
+    assert summary_path.exists()
+
+    plot_path = OUTPUT_DIR / "docking_scores_distribution.png"
+    assert plot_path.exists()
+
+    # Clean up output directory
+    subprocess.run(["rmdir", "/s", "/q", str(OUTPUT_DIR)], shell=True)

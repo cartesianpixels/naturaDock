@@ -6,6 +6,7 @@ from pdbfixer import PDBFixer
 import subprocess
 from .utils.utils import get_meeko_path
 import sys
+import numpy as np
 
 
 def load_protein(protein_pdb_path: Path):
@@ -37,12 +38,10 @@ def load_protein(protein_pdb_path: Path):
 
 
 def define_binding_site(
-    center_x: float,
-    center_y: float,
-    center_z: float,
-    size_x: float = 20.0,
-    size_y: float = 20.0,
-    size_z: float = 20.0,
+    structure,
+    size_x: float = 30.0,
+    size_y: float = 30.0,
+    size_z: float = 30.0,
 ) -> dict:
     """
     Creates a dictionary defining the center and size of the docking box.
@@ -50,9 +49,7 @@ def define_binding_site(
     This information is used by AutoDock Vina to specify the search space for docking.
 
     Args:
-        center_x: The x-coordinate of the center of the box.
-        center_y: The y-coordinate of the center of the box.
-        center_z: The z-coordinate of the center of the box.
+        structure: The protein structure object.
         size_x: The size of the box in the x-dimension (in Angstroms).
         size_y: The size of the box in the y-dimension (in Angstroms).
         size_z: The size of the box in the z-dimension (in Angstroms).
@@ -60,10 +57,22 @@ def define_binding_site(
     Returns:
         A dictionary containing the binding site parameters.
     """
+    ca_atoms = [atom for atom in structure.get_atoms() if atom.get_id() == "CA"]
+    if ca_atoms:
+        coords = [atom.get_coord() for atom in ca_atoms]
+    else:
+        # Fallback for structures without C-alpha atoms (e.g., DNA, small molecules)
+        coords = [atom.get_coord() for atom in structure.get_atoms()]
+
+    if not coords:
+        raise ValueError("Could not determine protein coordinates to define binding site.")
+
+    center = np.mean(coords, axis=0)
+
     return {
-        "center_x": center_x,
-        "center_y": center_y,
-        "center_z": center_z,
+        "center_x": center[0],
+        "center_y": center[1],
+        "center_z": center[2],
         "size_x": size_x,
         "size_y": size_y,
         "size_z": size_z,

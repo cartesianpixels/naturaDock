@@ -30,6 +30,7 @@ def test_cli_workflow():
 
     env = os.environ.copy()
     env["PYTHONPATH"] = str(Path(__file__).parent.parent / "src")
+    env["VINA_EXECUTABLE"] = str(Path(__file__).parent.parent / "vina.exe")
 
     result = subprocess.run(command, capture_output=True, text=True, env=env)
 

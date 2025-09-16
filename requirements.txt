@@ -13,6 +13,7 @@ meeko==0.5.0
 pdbfixer==1.11
 openmm==8.1.1
 toml==0.10.2
+openpyxl==3.1.2
 
 
 
@@ -20,3 +21,7 @@ toml==0.10.2
 black==23.7.0
 ruff==0.0.286
 pytest==7.4.3
+
+# Parallel Processing
+tqdm
+psutil

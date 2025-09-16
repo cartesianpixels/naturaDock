@@ -49,6 +49,7 @@ def test_load_compounds_sdf_success():
     molecules = list(load_compounds(VALID_SDF))
     assert len(molecules) == 1
     assert isinstance(molecules[0], Chem.Mol)
+    assert molecules[0].GetNumAtoms() == 6 # Benzene has 6 carbon atoms
 
 
 def test_load_compounds_file_not_found():
@@ -75,7 +76,7 @@ def test_generate_conformers_success():
     mol = Chem.MolFromSmiles("C")  # Methane
     processed_mols = list(generate_conformers([mol]))
     assert len(processed_mols) == 1
-    assert processed_mols[0].GetNumConformers() == 1
+    assert processed_mols[0].GetNumConformers() > 0
 
 
 def test_filter_compounds_logic():

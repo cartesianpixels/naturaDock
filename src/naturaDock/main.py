@@ -1,6 +1,9 @@
 import argparse
+import logging
 import toml
 from pathlib import Path
+
+from naturaDock.log_config import setup_logging
 
 from naturaDock.preprocessing.protein import (
     load_protein,
@@ -14,7 +17,7 @@ from naturaDock.preprocessing.compounds import (
     generate_conformers,
     prepare_compounds,
 )
-from naturaDock.docking.vina_dock import run_vina_docking
+from naturaDock.docking.parallel_dock import run_parallel_docking
 from naturaDock.analysis.results import aggregate_results
 from naturaDock.analysis.export import rank_and_export_results
 from naturaDock.analysis.statistics import generate_statistics
@@ -96,6 +99,18 @@ def main():
         action="store_true",
         help="Skip the analysis step.",
     )
+    parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=None,
+        help="Number of parallel workers for docking.",
+    )
+    parser.add_argument(
+        "--log-file", type=Path, default="naturaDock.log", help="Path to the log file."
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable verbose logging to the console."
+    )
 
     args = parser.parse_args()
 
@@ -160,14 +175,13 @@ def main():
     docking_results_dir = args.output / "docking_results"
     docking_results_dir.mkdir(exist_ok=True)
 
-    for compound_pdbqt in prepared_compounds:
-        output_pdbqt = docking_results_dir / f"{compound_pdbqt.stem}_docked.pdbqt"
-        run_vina_docking(
-            protein_pdbqt=protein_pdbqt,
-            compound_pdbqt=compound_pdbqt,
-            binding_site=binding_site,
-            output_pdbqt=output_pdbqt,
-        )
+    run_parallel_docking(
+        protein_pdbqt=protein_pdbqt,
+        prepared_compounds=prepared_compounds,
+        binding_site=binding_site,
+        docking_results_dir=docking_results_dir,
+        num_workers=args.num_workers,
+    )
 
     # 8. Run analysis
     if not args.skip_analysis:

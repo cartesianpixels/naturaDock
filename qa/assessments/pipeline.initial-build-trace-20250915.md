@@ -6,8 +6,8 @@
 
 - Total Requirements: 15
 - Fully Covered: 0 (0%)
-- Partially Covered: 0 (0%)
-- Not Covered: 15 (100%)
+- Partially Covered: 6 (40%)
+- Not Covered: 9 (60%)
 
 ### Requirement Mappings
 
@@ -21,11 +21,11 @@ Given-When-Then Mappings:
 
 #### FR-1.2: Compound standardization and validation
 
-**Coverage: NONE**
+**Coverage: PARTIAL**
 
 Given-When-Then Mappings:
 
-- No tests found.
+- `tests/test_preprocessing.py`: `test_load_compounds_sdf_success`, `test_filter_compounds_logic`
 
 #### FR-1.3: Metadata integration
 
@@ -37,11 +37,11 @@ Given-When-Then Mappings:
 
 #### FR-2.1: Automated structure processing
 
-**Coverage: NONE**
+**Coverage: PARTIAL**
 
 Given-When-Then Mappings:
 
-- No tests found.
+- `tests/test_preprocessing.py`: `test_load_protein_success`, `test_validate_protein_success`
 
 #### FR-2.2: Binding site identification
 
@@ -53,19 +53,19 @@ Given-When-Then Mappings:
 
 #### FR-2.3: Multiple conformer handling
 
-**Coverage: NONE**
+**Coverage: PARTIAL**
 
 Given-When-Then Mappings:
 
-- No tests found.
+- `tests/test_preprocessing.py`: `test_generate_conformers_success`
 
 #### FR-3.1: Multi-algorithm support
 
-**Coverage: NONE**
+**Coverage: PARTIAL**
 
 Given-When-Then Mappings:
 
-- No tests found.
+- `tests/test_docking.py`: `test_run_vina_docking_success`
 
 #### FR-3.2: Computational efficiency
 
@@ -77,11 +77,11 @@ Given-When-Then Mappings:
 
 #### FR-3.3: Result processing
 
-**Coverage: NONE**
+**Coverage: PARTIAL**
 
 Given-When-Then Mappings:
 
-- No tests found.
+- `tests/test_analysis.py`: `test_aggregate_results`, `test_rank_and_export_results`
 
 #### FR-4.1: Pharmacokinetic property prediction
 
@@ -101,11 +101,11 @@ Given-When-Then Mappings:
 
 #### FR-5.1: Statistical analysis
 
-**Coverage: NONE**
+**Coverage: PARTIAL**
 
 Given-When-Then Mappings:
 
-- No tests found.
+- `tests/test_analysis.py`: `test_generate_statistics`
 
 #### FR-5.2: Machine learning integration
 
@@ -125,19 +125,17 @@ Given-When-Then Mappings:
 
 ### Critical Gaps
 
-1.  **No Test Coverage**
-    -   **Gap**: There are no automated tests (unit, integration, or E2E) for any of the functional requirements. The entire codebase lacks a test suite.
-    -   **Risk**: High - Without tests, any change can introduce regressions. There is no way to automatically verify the correctness of the implementation.
-    -   **Action**: Implement a testing framework (e.g., `pytest`) and create a comprehensive test suite covering all functional requirements.
+1.  **Incomplete Test Coverage**
+    -   **Gap**: While unit tests have been improved, there is still no test coverage for the `main` module's argument parsing and configuration handling. The end-to-end test is still failing.
+    -   **Risk**: Medium - The core logic is mostly tested, but the CLI entry point is not, which could lead to usability issues.
+    -   **Action**: Fix the end-to-end test and add unit tests for the `main` module.
 
 ### Test Design Recommendations
 
-1.  **Implement a Test Framework**: Introduce `pytest` for writing unit and integration tests.
-2.  **Unit Tests**: Create unit tests for each function in the `src` directory (`analysis.py`, `compounds.py`, `docking.py`, `protein.py`, `visualize.py`).
-3.  **Integration Tests**: Create integration tests that verify the interaction between the different modules of the pipeline.
-4.  **Test Data**: Create a small, well-defined dataset of compounds and proteins for testing purposes.
-5.  **Mocking**: Use mocking libraries (e.g., `unittest.mock`) to isolate components and mock external APIs (PubChem, etc.).
+1.  **Fix End-to-End Test**: The immediate priority is to fix the failing `test_cli.py` to ensure the pipeline runs from start to finish.
+2.  **Write Unit Tests for `main`**: Test the CLI argument parsing and configuration file handling in isolation.
+3.  **Improve Existing Tests**: The tests for the analysis module could be improved by using more realistic data.
 
 ### Risk Assessment
 
--   **High Risk**: All 15 functional requirements have no test coverage. This is a critical issue that needs to be addressed immediately.
+-   **Medium Risk**: The project is in a much better state, but the failing end-to-end test and lack of coverage for the CLI entry point still pose a risk.

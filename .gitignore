@@ -184,3 +184,4 @@ site/
 .github/
 .qwen/
 environment.local.yml
+docs/

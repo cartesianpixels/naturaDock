@@ -178,6 +178,7 @@ site/
 
 # BMad Method & AI Tooling
 .bmad-core/
+.bmad-logs/
 .claude/
 .cursor/
 .gemini/

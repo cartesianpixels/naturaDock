@@ -1,0 +1,18 @@
+HEADER    TRI-ALANINE TEST PROTEIN
+ATOM      1  N   ALA A   1       0.000   0.000   0.000  1.00  0.00           N
+ATOM      2  CA  ALA A   1       1.450   0.000   0.000  1.00  0.00           C
+ATOM      3  C   ALA A   1       1.970   1.420   0.000  1.00  0.00           C
+ATOM      4  O   ALA A   1       1.260   2.420   0.000  1.00  0.00           O
+ATOM      5  CB  ALA A   1       1.970  -0.770  -1.200  1.00  0.00           C
+ATOM      6  N   ALA A   2       3.270   1.500   0.000  1.00  0.00           N
+ATOM      7  CA  ALA A   2       3.870   2.800   0.000  1.00  0.00           C
+ATOM      8  C   ALA A   2       5.370   2.700   0.000  1.00  0.00           C
+ATOM      9  O   ALA A   2       5.900   1.650   0.000  1.00  0.00           O
+ATOM     10  CB  ALA A   2       3.500   3.500  -1.280  1.00  0.00           C
+ATOM     11  N   ALA A   3       6.100   3.750   0.000  1.00  0.00           N
+ATOM     12  CA  ALA A   3       7.530   3.800   0.000  1.00  0.00           C
+ATOM     13  C   ALA A   3       8.100   5.200   0.000  1.00  0.00           C
+ATOM     14  O   ALA A   3       7.500   6.200   0.000  1.00  0.00           O
+ATOM     15  CB  ALA A   3       8.000   3.000  -1.200  1.00  0.00           C
+TER
+END

@@ -1,0 +1,17 @@
+protein = "C:\\Users\\Zineb\\naturaDock\\tests\\data\\test_protein.pdb"
+ligands = "C:\\Users\\Zineb\\naturaDock\\tests\\data\\test_compounds_small.sdf"
+output = "C:\Users\Zineb\naturaDock\data\results"
+
+center_x = 10.0
+center_y = 12.5
+center_z = -5.0
+
+size_x = 22.0
+size_y = 22.0
+size_z = 22.0
+
+max_mol_weight = 450.0
+max_rotatable_bonds = 8
+min_logp = -4.0
+max_logp = 6.0
+

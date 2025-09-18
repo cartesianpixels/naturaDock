@@ -1,9 +1,7 @@
 import argparse
-import logging
 import toml
 from pathlib import Path
 
-from naturaDock.log_config import setup_logging
 
 from naturaDock.preprocessing.protein import (
     load_protein,

@@ -2,7 +2,9 @@
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
-def calculate_enrichment_factor(df: pd.DataFrame, active_column: str, score_column: str, percentile: float) -> float:
+def calculate_enrichment_factor(
+    df: pd.DataFrame, active_column: str, score_column: str, percentile: float
+) -> float:
     """
     Calculates the enrichment factor at a given percentile.
 
@@ -22,7 +24,9 @@ def calculate_enrichment_factor(df: pd.DataFrame, active_column: str, score_colu
     top_percentile_df = df_sorted.head(int(n_total * percentile / 100))
 
     n_actives_top = top_percentile_df[active_column].sum()
-    enrichment_factor = (n_actives_top / len(top_percentile_df)) / (n_actives_total / n_total)
+    enrichment_factor = (n_actives_top / len(top_percentile_df)) / (
+        n_actives_total / n_total
+    )
 
     return enrichment_factor
 

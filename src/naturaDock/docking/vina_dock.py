@@ -2,7 +2,6 @@
 
 import subprocess
 from pathlib import Path
-import os
 
 def run_vina_docking(
     protein_pdbqt: Path,

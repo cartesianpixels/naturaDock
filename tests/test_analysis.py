@@ -14,9 +14,15 @@ RESULTS_DIR = TEST_DATA_DIR / "results"
 def dummy_results_dir(tmpdir_factory):
     """Create a dummy results directory with some PDBQT files."""
     results_dir = tmpdir_factory.mktemp("results")
-    (results_dir / "compound1_docked.pdbqt").write_text("REMARK VINA RESULT: -7.5 0.000 0.000", encoding="utf-8")
-    (results_dir / "compound2_docked.pdbqt").write_text("REMARK VINA RESULT: -8.2 0.000 0.000", encoding="utf-8")
-    (results_dir / "compound3_docked.pdbqt").write_text("Invalid PDBQT file", encoding="utf-8")
+    (results_dir / "compound1_docked.pdbqt").write_text(
+        "REMARK VINA RESULT: -7.5 0.000 0.000", encoding="utf-8"
+    )
+    (results_dir / "compound2_docked.pdbqt").write_text(
+        "REMARK VINA RESULT: -8.2 0.000 0.000", encoding="utf-8"
+    )
+    (results_dir / "compound3_docked.pdbqt").write_text(
+        "Invalid PDBQT file", encoding="utf-8"
+    )
     return Path(str(results_dir))
 
 def test_parse_vina_result():

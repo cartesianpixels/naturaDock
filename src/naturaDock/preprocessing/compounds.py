@@ -7,6 +7,7 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Descriptors
 import subprocess
 from .utils.utils import get_meeko_path
+
 import sys
 import tempfile
 
@@ -164,7 +165,10 @@ def prepare_compounds(molecules: Iterable[Chem.Mol], output_dir: Path) -> list[P
             )
             continue
         except Exception as e:
-            print(f"Warning: An unexpected error occurred for molecule {mol_name}. Error: {e}")
+            print(
+                f"Warning: An unexpected error occurred for molecule {mol_name}. "
+                f"Error: {e}"
+            )
             continue
         finally:
             # Clean up the temporary file

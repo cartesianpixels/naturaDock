@@ -1,5 +1,5 @@
-protein = "C:\Users\Zineb\naturaDock\data\proteins\1a2b.pdb"
-ligands = "C:\Users\Zineb\naturaDock\data\compounds\sample.sdf"
+protein = "C:\\Users\\Zineb\\naturaDock\\tests\\data\\test_protein.pdb"
+ligands = "C:\\Users\\Zineb\\naturaDock\\tests\\data\\test_compounds_small.sdf"
 output = "C:\Users\Zineb\naturaDock\data\results"
 
 center_x = 10.0

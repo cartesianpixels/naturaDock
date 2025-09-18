@@ -1,6 +1,5 @@
 
 import concurrent.futures
-import os
 from pathlib import Path
 from tqdm import tqdm
 import psutil
@@ -22,7 +21,8 @@ def run_parallel_docking(
         prepared_compounds: List of paths to prepared compound files in PDBQT format.
         binding_site: Dictionary defining the docking box (center and size).
         docking_results_dir: Path to the directory to write the docked pose output files.
-        num_workers: The number of parallel workers to use. If None, it will default to the number of available CPU cores.
+        num_workers: The number of parallel workers to use. If None, it will default to 
+                     the number of available CPU cores.
     """
     if num_workers is None:
         num_workers = psutil.cpu_count(logical=False)
@@ -30,7 +30,9 @@ def run_parallel_docking(
     with concurrent.futures.ProcessPoolExecutor(max_workers=num_workers) as executor:
         futures = []
         for compound_pdbqt in prepared_compounds:
-            output_pdbqt = docking_results_dir / f"{compound_pdbqt.stem}_docked.pdbqt"
+            output_pdbqt = (
+                docking_results_dir / f"{compound_pdbqt.stem}_docked.pdbqt"
+            )
             future = executor.submit(
                 run_vina_docking,
                 protein_pdbqt=protein_pdbqt,

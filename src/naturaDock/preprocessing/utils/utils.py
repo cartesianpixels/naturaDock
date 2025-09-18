@@ -22,6 +22,8 @@ def get_meeko_path(script_name: str) -> Path:
 
     script_path = scripts_dir / script_name
     if not script_path.exists():
-        raise FileNotFoundError(f"Meeko script '{script_name}' not found in '{scripts_dir}'")
+        raise FileNotFoundError(
+            f"Meeko script '{script_name}' not found in '{scripts_dir}'"
+        )
 
     return script_path

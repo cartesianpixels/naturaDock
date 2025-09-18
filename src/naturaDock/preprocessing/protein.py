@@ -5,7 +5,7 @@ from Bio.PDB import PDBParser, PDBExceptions
 from pdbfixer import PDBFixer
 import subprocess
 from .utils.utils import get_meeko_path
-import sys
+
 import numpy as np
 
 
@@ -65,7 +65,9 @@ def define_binding_site(
         coords = [atom.get_coord() for atom in structure.get_atoms()]
 
     if not coords:
-        raise ValueError("Could not determine protein coordinates to define binding site.")
+        raise ValueError(
+            "Could not determine protein coordinates to define binding site."
+        )
 
     center = np.mean(coords, axis=0)
 

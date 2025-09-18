@@ -5,6 +5,23 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "naturaDock"
 version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "rdkit",
+    "biopython",
+    "pdbfixer",
+    "numpy",
+    "tqdm",
+    "psutil",
+    "pandas",
+    "openpyxl",
+    "matplotlib",
+    "seaborn",
+    "toml",
+    "meeko",
+    "scipy",
+	"gemmi",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

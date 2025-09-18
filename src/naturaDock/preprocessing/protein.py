@@ -125,13 +125,11 @@ def prepare_protein(protein_pdb_path: Path, protein_pdbqt_path: Path):
     """
     script_path = get_meeko_path("mk_prepare_receptor.py")
     command = [
-        "python",
-        str(script_path),
-        "--pdb",
-        str(protein_pdb_path),
-        "-o",
-        str(protein_pdbqt_path),
-        "--skip_gpf",
+    "python",
+    str(script_path),
+    "--read_pdb", str(protein_pdb_path),
+    "-o", str(protein_pdbqt_path.stem),
+    "-p", str(protein_pdbqt_path),
     ]
 
     print(f"Executing Meeko for protein: {' '.join(command)}")

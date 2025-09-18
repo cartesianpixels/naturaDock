@@ -186,3 +186,9 @@ site/
 .qwen/
 environment.local.yml
 docs/
+
+# Test data files
+*.pdb
+*.sdf
+*.pdbqt
+output/

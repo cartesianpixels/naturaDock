@@ -1,10 +1,10 @@
 # naturaDock
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/cartesianpixels/naturaDock)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cartesianpixels/naturadock)](https://hub.docker.com/r/cartesianpixels/naturadock)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 
-A reproducible, command-line pipeline for **virtual screening of compound libraries against protein targets** using [AutoDock Vina](http://vina.scripps.edu/), [RDKit](https://www.rdkit.org/), and [Biopython](https://biopython.org/).
+A reproducible, command-line pipeline for **virtual screening of compound libraries against protein targets** using [AutoDock Vina](https://github.com/ccsb-scripps/AutoDock-Vina), [RDKit](https://www.rdkit.org/), and [Biopython](https://biopython.org/).
 
 ---
 
@@ -17,10 +17,11 @@ The discovery of novel bioactive compounds is often hampered by a landscape of *
 ## ✨ Core Features (v1.0)
 
 - **Streamlined Preprocessing:** Handles local compound libraries (SDF, MOL2, SMILES) and protein structures (PDB).
-- **Automated 3D Conformer Generation:** Prepares molecules for docking.
-- **Robust Docking:** Integrates the powerful and validated AutoDock Vina engine.
-- **Data Filtering:** Allows for basic filtering of compounds by properties like molecular weight.
-- **Reproducibility First:** Designed from the ground up to be run inside a Docker container, ensuring results are fully reproducible.
+- **Automated 3D Conformer Generation:** Prepares molecules for docking using RDKit.
+- **Robust Docking:** Integrates AutoDock Vina v1.2+ via Meeko for PDBQT preparation.
+- **Parallel Docking:** Multi-core support via Python's `concurrent.futures`.
+- **Drug-likeness Filtering:** Filter by molecular weight, rotatable bonds, and LogP.
+- **Reproducibility First:** Designed to run inside Docker — same results on any machine.
 
 ---
 
@@ -28,151 +29,179 @@ The discovery of novel bioactive compounds is often hampered by a landscape of *
 
 ### Option 1: Docker (Recommended)
 
-Pull and run the pre-built Docker image:
-
 ```bash
-# Pull the Docker image
+# Pull the image
 docker pull cartesianpixels/naturadock:latest
 
-# Run naturaDock with your data
+# Run with your data
 docker run -v $(pwd):/workspace cartesianpixels/naturadock:latest \
     --protein /workspace/protein.pdb \
     --ligands /workspace/ligands.sdf \
-    --config /workspace/config.toml
+    --output /workspace/output
 ```
+
+> **Windows (PowerShell):** Replace `$(pwd)` with `${PWD}`.
 
 ### Option 2: Local Installation
 
-1. Clone the repository:
 ```bash
 git clone https://github.com/cartesianpixels/naturaDock.git
 cd naturaDock
-```
 
-2. Install dependencies:
-> **Note:** It is highly recommended to use a virtual environment.
-
-```bash
-# Install project dependencies
 pip install -r requirements.txt
-
-# Install the project in editable mode to make the CLI work
 pip install -e .
 ```
 
+> Requires Python 3.11+ and AutoDock Vina installed and on your PATH.
+
 ---
 
-## 🚀 Usage (v1 Workflow)
+## 🚀 Usage
 
-naturaDock is run from the command line. You can provide arguments directly or use a TOML configuration file.
-
-### Using a configuration file (recommended):
+### Using a config file (recommended)
 
 ```bash
-python -m naturaDock.main --config path/to/your_config.toml
+python -m naturaDock.main --config path/to/config.toml
 ```
 
-#### Example config.toml:
+#### Example `config.toml`:
 
 ```toml
 protein = "path/to/protein.pdb"
-ligands = "path/to/ligand_library.sdf"
-output = "path/to/output_directory"
-
-center_x = 10.0
-center_y = 12.5
-center_z = -5.0
+ligands = "path/to/ligands.sdf"
+output  = "path/to/output"
 
 size_x = 22.0
 size_y = 22.0
 size_z = 22.0
 
-max_mol_weight = 450.0
-max_rotatable_bonds = 8
-min_logp = -4.0
-max_logp = 6.0
+max_mol_weight      = 500.0
+max_rotatable_bonds = 10
+min_logp            = -5.0
+max_logp            = 6.0
 ```
 
-### Providing arguments directly:
+### Using command-line arguments directly
 
 ```bash
-python -m naturaDock.main --protein path/to/protein.pdb --ligands path/to/ligand_library.sdf --output path/to/output --center_x 10 --center_y 12.5 --center_z -5
+python -m naturaDock.main \
+    --protein protein.pdb \
+    --ligands ligands.sdf \
+    --output output/ \
+    --size_x 22 --size_y 22 --size_z 22 \
+    --max_mol_weight 700 \
+    --max_rotatable_bonds 12
 ```
 
-### Specifying the Vina Executable:
+### All options
 
-The path to the AutoDock Vina executable is determined in the following order:
-1. `VINA_EXECUTABLE` environment variable.
-2. `vina.exe` in the project's root directory.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--protein` | required | Path to protein PDB file |
+| `--ligands` | required | Path to compound library (SDF, SMI, MOL2) |
+| `--output` | required | Output directory |
+| `--size_x/y/z` | 60.0 | Docking box dimensions (Å) |
+| `--max_mol_weight` | 500.0 | Maximum molecular weight (Da) |
+| `--max_rotatable_bonds` | 10 | Maximum rotatable bonds |
+| `--min_logp` / `--max_logp` | -5.0 / 5.0 | LogP range |
+| `--export_format` | csv | Results format: `csv` or `xlsx` |
+| `--num_workers` | all cores | Parallel docking workers |
+| `--skip_analysis` | false | Skip analysis step |
+
+### AutoDock Vina executable
+
+The Vina binary is resolved in this order:
+1. `VINA_EXECUTABLE` environment variable
+2. `vina` on the system PATH (Linux/macOS)
+3. `vina.exe` in the project root (Windows)
 
 ---
 
-## 📊 Workflow (v1.0)
+## 📊 Workflow
 
 ```mermaid
 flowchart TD
-    A[Input: Local Compound Library] --> B[Preprocessing & Filtering]
-    C[Input: Protein PDB File] --> B
-    B --> D[Docking with AutoDock Vina]
-    D --> E[Output: Ranked list of compounds]
+    A[Protein PDB] --> B[Validate & Prepare Protein]
+    C[Compound Library SDF] --> D[Load & Filter Compounds]
+    D --> E[Generate 3D Conformers]
+    E --> F[Prepare PDBQT files via Meeko]
+    B --> G[Parallel Docking with AutoDock Vina]
+    F --> G
+    G --> H[Aggregate Results]
+    H --> I[ranked_results.csv]
+    H --> J[statistical_summary.txt]
+    H --> K[docking_scores_distribution.png]
 ```
 
 ---
 
-## 🛠️ Roadmap (Future Features)
+## 📁 Output
 
-The V1 release is focused on creating a robust, local pipeline. Future versions will expand on this foundation with more advanced features:
+```
+output/
+├── protein.pdbqt                       # Prepared receptor
+├── prepared_compounds/                 # Prepared ligand PDBQT files
+│   └── compound_name.pdbqt
+├── docking_results/                    # Raw Vina output
+│   └── compound_name_docked.pdbqt
+├── ranked_results.csv                  # Compounds ranked by affinity (kcal/mol)
+├── statistical_summary.txt             # Descriptive statistics
+└── docking_scores_distribution.png     # Score distribution plot
+```
 
-### Automated Data Fetching:
+---
+
+## 🧪 Quick Test (1HSG HIV Protease)
+
+A classic benchmark — HIV protease (1HSG) with indinavir, a known inhibitor:
+
 ```bash
-python scripts/fetch_compounds.py --source pubchem --query "flavonoids"
+# Download test data
+curl -o protein.pdb "https://files.rcsb.org/download/1HSG.pdb"
+curl -o ligands.sdf "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/5362440/SDF?record_type=3d"
+
+# Run
+docker run -v ${PWD}:/workspace cartesianpixels/naturadock:latest \
+    --protein /workspace/protein.pdb \
+    --ligands /workspace/ligands.sdf \
+    --output /workspace/output \
+    --max_mol_weight 700 \
+    --max_rotatable_bonds 12
 ```
 
-### Advanced Analysis & Prioritization:
-```bash
-# ADMET & ML Prioritization
-python scripts/run_admet.py --input docking_results.csv
-python scripts/train_ml.py --input admet_results.csv
-```
+Expected best affinity: ~**-6.4 kcal/mol** for indinavir.
 
-### Expanded Workflow:
-```mermaid
-flowchart TD
-    A[Fetch Compounds] --> B[Filter & Clean]
-    B --> C[Prepare Protein]
-    C --> D[Docking with AutoDock Vina]
-    D --> E[Ranking & Visualization]
-    E --> F[ADMET Filtering]
-    F --> G[ML Prioritization]
-```
+---
 
-### Web Interface
-A user-friendly GUI for easier job submission and results visualization.
+## 🛠️ Roadmap
+
+- [ ] Automated compound fetching from PubChem / ZINC
+- [ ] ADMET property prediction
+- [ ] ML-based compound prioritization
+- [ ] Web interface for job submission and visualization
+- [ ] RMSD validation against crystal poses
 
 ---
 
 ## 🧑‍💻 Contributing
 
-naturaDock is in an early MVP stage. Contributions are welcome:
-
-- Bug reports
-- Feature requests
-- New modules (e.g., descriptors, visualization, ADMET tools)
+Contributions are welcome:
+- Bug reports & feature requests via [GitHub Issues](https://github.com/cartesianpixels/naturaDock/issues)
+- New modules (ADMET, visualization, descriptors)
 - Documentation improvements
-
-Please open an issue or submit a pull request.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 ## 🔗 Links
 
-- [AutoDock Vina](http://vina.scripps.edu/)
+- [AutoDock Vina](https://github.com/ccsb-scripps/AutoDock-Vina)
 - [RDKit](https://www.rdkit.org/)
 - [Biopython](https://biopython.org/)
+- [Meeko](https://github.com/forlilab/Meeko)
 - [Docker Hub](https://hub.docker.com/r/cartesianpixels/naturadock)
